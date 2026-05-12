@@ -1,0 +1,121 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Novel Assistant - 创作工作台</title>
+    <link rel="stylesheet" href="./static/style.css" />
+  </head>
+  <body data-page="project">
+    <div class="workspace-shell">
+      <header class="workspace-topbar">
+        <div>
+          <a href="./index.html" class="back-link">← 返回书架</a>
+          <h1 id="project-title-heading">作品名称</h1>
+          <p class="topbar-subtitle">创作手稿台</p>
+        </div>
+        <button id="save-project-btn" class="btn btn-primary">保存手稿</button>
+      </header>
+
+      <div class="workspace-layout">
+        <aside class="workspace-sidebar">
+          <nav id="module-nav" class="module-nav">
+            <button class="module-item active" data-module="overview">作品概览</button>
+            <button class="module-item" data-module="positioning">创作定位</button>
+            <button class="module-item" data-module="background">世界设定</button>
+            <button class="module-item" data-module="characters">人物档案</button>
+            <button class="module-item" data-module="plot">故事脉络</button>
+            <button class="module-item" data-module="chapters">章节手稿</button>
+            <button class="module-item" data-module="updates">连载记录</button>
+            <button class="module-item" data-module="feedback">读者回声</button>
+          </nav>
+        </aside>
+
+        <main class="workspace-content">
+          <section class="module" data-module="overview">
+            <article class="paper-card">
+              <h2>作品概览</h2>
+              <div id="overview-cards" class="card-grid card-grid-3"></div>
+            </article>
+          </section>
+
+          <section class="module hidden" data-module="positioning">
+            <article class="paper-card">
+              <div class="module-head">
+                <h2>创作定位</h2>
+                <button id="edit-positioning-btn" class="btn btn-secondary">编辑</button>
+              </div>
+              <div id="positioning-view" class="reading-block"></div>
+              <form id="positioning-form" class="hidden"></form>
+            </article>
+          </section>
+
+          <section class="module hidden" data-module="background">
+            <article class="paper-card">
+              <div class="module-head">
+                <h2>世界设定</h2>
+                <button id="edit-background-btn" class="btn btn-secondary">编辑</button>
+              </div>
+              <div id="background-view" class="reading-block"></div>
+              <form id="background-form" class="hidden"></form>
+            </article>
+          </section>
+
+          <section class="module hidden" data-module="characters">
+            <article class="paper-card">
+              <div class="module-head">
+                <h2>人物档案</h2>
+                <button id="add-character-btn" class="btn btn-secondary">添加人物</button>
+              </div>
+              <div id="characters-list" class="card-grid card-grid-2"></div>
+            </article>
+          </section>
+
+          <section class="module hidden" data-module="plot">
+            <article class="paper-card">
+              <div class="module-head">
+                <h2>故事脉络</h2>
+                <button id="add-plot-btn" class="btn btn-secondary">添加一条线索</button>
+              </div>
+              <div id="plot-list" class="card-grid card-grid-2"></div>
+            </article>
+          </section>
+
+          <section class="module hidden" data-module="chapters">
+            <article class="paper-card">
+              <div class="module-head">
+                <h2>章节手稿</h2>
+                <button id="add-chapter-btn" class="btn btn-secondary">添加章节手稿</button>
+              </div>
+              <div id="chapters-list" class="card-grid card-grid-1"></div>
+            </article>
+          </section>
+
+          <section class="module hidden" data-module="updates">
+            <article class="paper-card">
+              <h2>连载记录</h2>
+              <p class="module-note">连载推进已收敛到章节手稿内部。这里展示章节推进状态与衔接痕迹。</p>
+              <div id="updates-summary" class="card-grid card-grid-2"></div>
+            </article>
+          </section>
+
+          <section class="module hidden" data-module="feedback">
+            <article class="paper-card">
+              <div class="module-head">
+                <h2>读者回声</h2>
+                <button id="add-feedback-btn" class="btn btn-secondary">添加反馈</button>
+              </div>
+              <div id="feedback-list" class="card-grid card-grid-1"></div>
+            </article>
+          </section>
+
+          <p id="save-message" class="save-message"></p>
+          <p id="meta-info" class="meta-line"></p>
+        </main>
+      </div>
+    </div>
+
+    <script src="./static/project-nav.js"></script>
+    <script src="./static/app.js"></script>
+  </body>
+</html>
