@@ -17,23 +17,23 @@
 
       <div class="index-layout">
         <section class="index-panel">
-          <h2>创建新项目</h2>
+          <h2>创作新内容</h2>
           <form id="create-project-form" class="index-form">
-            <label for="title">小说标题</label>
+            <label for="title">命名</label>
             <input id="title" name="title" type="text" required maxlength="100" />
 
-            <label for="description">小说简介</label>
+            <label for="description">简介</label>
             <textarea id="description" name="description" rows="5" placeholder="可选"></textarea>
 
-            <button type="submit" class="btn btn-primary">创建项目</button>
+            <button type="submit" class="btn btn-primary">创建作品</button>
           </form>
           <p id="create-message" class="message"></p>
         </section>
 
         <section class="index-panel">
           <div class="module-head">
-            <h2>项目列表</h2>
-            <button id="refresh-projects-btn" type="button" class="btn btn-secondary">刷新</button>
+            <h2>作品书架</h2>
+            <button id="refresh-projects-btn" type="button" class="btn btn-secondary">更新书架</button>
           </div>
           <div id="project-list" class="project-cards"></div>
         </section>
@@ -43,3 +43,4 @@
     <script src="./static/index.js"></script>
   </body>
 </html>
+

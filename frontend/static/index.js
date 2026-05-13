@@ -1,4 +1,9 @@
-const API_BASE = "http://127.0.0.1:8000/api";
+﻿const API_BASE_CANDIDATES = [
+  "http://127.0.0.1:8012/api",
+  "http://127.0.0.1:8010/api",
+  "http://127.0.0.1:8000/api",
+];
+let activeApiBase = API_BASE_CANDIDATES[0];
 
 function esc(v) {
   return String(v ?? "")
@@ -15,13 +20,29 @@ function formatDate(v) {
   return Number.isNaN(d.getTime()) ? String(v) : d.toLocaleString();
 }
 
-async function requestJson(url, options = {}) {
+function withBase(url, base) {
+  return String(url || "").replace(/^http:\/\/127\.0\.0\.1:\d+\/api/, base);
+}
+
+async function doFetchJson(url, options = {}) {
   const res = await fetch(url, options);
   if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || `HTTP ${res.status}`);
+    throw new Error("请求失败");
   }
   return res.json();
+}
+
+async function requestJson(url, options = {}) {
+  for (const base of API_BASE_CANDIDATES) {
+    try {
+      const data = await doFetchJson(withBase(url, base), options);
+      activeApiBase = base;
+      return data;
+    } catch {
+      // try next endpoint
+    }
+  }
+  throw new Error("请求失败");
 }
 
 async function setupIndexPage() {
@@ -35,14 +56,14 @@ async function setupIndexPage() {
 
   const params = new URLSearchParams(window.location.search);
   if (params.get("error")) {
-    msg.textContent = params.get("error");
+    msg.textContent = "项目加载失败";
   }
   if (!titleInput.value && params.get("title")) titleInput.value = params.get("title");
   if (!descInput.value && params.get("description")) descInput.value = params.get("description");
 
   async function renderList() {
     try {
-      const data = await requestJson(`${API_BASE}/projects`);
+      const data = await requestJson(`${activeApiBase}/projects`);
       if (!data.projects?.length) {
         list.innerHTML = '<p class="module-note">还没有项目，先创建一个吧。</p>';
         return;
@@ -51,20 +72,20 @@ async function setupIndexPage() {
         .map(
           (p) => `
             <article class="project-card">
-              <h3>${esc(p.title || "未命名项目")}</h3>
+              <h3>${esc(p.title || "未命名作品")}</h3>
               <div class="story-text">${esc(p.description || "暂无简介")}</div>
               <div class="project-meta">更新时间：${esc(formatDate(p.updated_at))}</div>
               <div class="project-actions">
-                <a class="btn btn-secondary" href="./project.html?id=${encodeURIComponent(p.id)}">进入工作台</a>
-                <button type="button" class="btn btn-danger" data-action="delete-project" data-id="${esc(p.id)}">删除</button>
+                <a class="btn btn-secondary" href="./project.html?id=${encodeURIComponent(p.id)}">继续创作</a>
+                <button type="button" class="btn btn-danger" data-action="delete-project" data-id="${esc(p.id)}">删除作品</button>
               </div>
             </article>
           `,
         )
         .join("");
-    } catch (err) {
-      list.innerHTML = '<p class="module-note">项目列表加载失败，请确认后端已启动。</p>';
-      msg.textContent = `加载失败：${err.message}`;
+    } catch {
+      list.innerHTML = '<p class="module-note">项目加载失败</p>';
+      msg.textContent = "项目加载失败";
     }
   }
 
@@ -75,24 +96,24 @@ async function setupIndexPage() {
     const title = titleInput.value.trim();
     const description = descInput.value.trim();
     if (!title) {
-      msg.textContent = "请先填写小说标题。";
+      msg.textContent = "请先填写命名";
       titleInput.focus();
       return;
     }
 
     try {
-      const created = await requestJson(`${API_BASE}/projects`, {
+      const created = await requestJson(`${activeApiBase}/projects`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title, description }),
       });
-      msg.textContent = "项目已创建，正在进入工作台。";
+      msg.textContent = "创建成功，正在继续创作。";
       await renderList();
       if (created?.id) {
         window.location.href = `./project.html?id=${encodeURIComponent(created.id)}`;
       }
-    } catch (err) {
-      msg.textContent = `创建失败：${err.message}。请确认后端已启动：py -3 -m uvicorn main:app --reload --port 8000`;
+    } catch {
+      msg.textContent = "创建失败";
     }
   });
 
@@ -105,26 +126,25 @@ async function setupIndexPage() {
 
     const pid = encodeURIComponent(projectId);
     const attempts = [
-      { url: `${API_BASE}/projects/${pid}`, options: { method: "DELETE" } },
-      { url: `${API_BASE}/projects/${pid}/`, options: { method: "DELETE" } },
-      { url: `${API_BASE}/projects/${pid}/delete`, options: { method: "POST" } },
-      { url: `${API_BASE}/projects/${pid}/remove`, options: { method: "POST" } },
+      { url: `${activeApiBase}/projects/${pid}`, options: { method: "DELETE" } },
+      { url: `${activeApiBase}/projects/${pid}/`, options: { method: "DELETE" } },
+      { url: `${activeApiBase}/projects/${pid}/delete`, options: { method: "POST" } },
+      { url: `${activeApiBase}/projects/${pid}/remove`, options: { method: "POST" } },
     ];
 
     let ok = false;
-    let lastError = null;
     for (const req of attempts) {
       try {
         await requestJson(req.url, req.options);
         ok = true;
         break;
-      } catch (err) {
-        lastError = err;
+      } catch {
+        // continue trying fallback endpoints
       }
     }
 
     if (!ok) {
-      msg.textContent = `删除失败：${lastError ? lastError.message : "未知错误"}`;
+      msg.textContent = "删除失败";
       return;
     }
 
@@ -140,7 +160,8 @@ async function setupIndexPage() {
   await renderList();
 }
 
-setupIndexPage().catch((err) => {
+setupIndexPage().catch(() => {
   const msg = document.getElementById("create-message");
-  if (msg) msg.textContent = `初始化失败：${err.message}`;
+  if (msg) msg.textContent = "页面加载失败";
 });
+

@@ -1,12 +1,17 @@
 import json
 import shutil
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
-from migrations import migrate_project
-from models import LATEST_SCHEMA_VERSION, Project
+try:
+    from .migrations import migrate_project
+    from .models import LATEST_SCHEMA_VERSION, Project
+except ImportError:
+    from migrations import migrate_project
+    from models import LATEST_SCHEMA_VERSION, Project
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -79,8 +84,22 @@ def save_project(project: Project) -> None:
     payload["feedback_notes"] = payload.get("feedbacks", [])
     payload.setdefault("update_notes", [])
 
-    with path.open("w", encoding="utf-8") as f:
-        json.dump(payload, f, ensure_ascii=False, indent=2)
+    # 在部分 Windows 环境中，文件替换/删除可能被系统策略拦截（WinError 5）。
+    # 这里使用直接覆盖写入并短重试，避免 replace/unlink 权限问题。
+    last_error: Exception | None = None
+    for i in range(5):
+        try:
+            with path.open("w", encoding="utf-8") as f:
+                json.dump(payload, f, ensure_ascii=False, indent=2)
+            return
+        except PermissionError as err:
+            last_error = err
+            time.sleep(0.08 * (i + 1))
+        except OSError as err:
+            last_error = err
+            time.sleep(0.08 * (i + 1))
+    if last_error:
+        raise last_error
 
 
 def load_project(project_id: str) -> Project | None:

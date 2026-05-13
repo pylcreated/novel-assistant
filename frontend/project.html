@@ -12,110 +12,89 @@
         <div>
           <a href="./index.html" class="back-link">← 返回书架</a>
           <h1 id="project-title-heading">作品名称</h1>
-          <p class="topbar-subtitle">创作手稿台</p>
+          <p class="topbar-subtitle">极简正文写作与思路整合</p>
         </div>
-        <button id="save-project-btn" class="btn btn-primary">保存手稿</button>
       </header>
 
-      <div class="workspace-layout">
-        <aside class="workspace-sidebar">
-          <nav id="module-nav" class="module-nav">
-            <button class="module-item active" data-module="overview">作品概览</button>
-            <button class="module-item" data-module="positioning">创作定位</button>
-            <button class="module-item" data-module="background">世界设定</button>
-            <button class="module-item" data-module="characters">人物档案</button>
-            <button class="module-item" data-module="plot">故事脉络</button>
-            <button class="module-item" data-module="chapters">章节手稿</button>
-            <button class="module-item" data-module="updates">连载记录</button>
-            <button class="module-item" data-module="feedback">读者回声</button>
+      <main class="workspace-content">
+        <article class="paper-card">
+          <nav class="module-nav simple-tabs" id="main-tabs">
+            <button class="module-item active" data-tab="chapters">章节正文</button>
+            <button class="module-item" data-tab="notes">创作档案</button>
           </nav>
-        </aside>
+        </article>
 
-        <main class="workspace-content">
-          <section class="module" data-module="overview">
-            <article class="paper-card">
-              <h2>作品概览</h2>
-              <div id="overview-cards" class="card-grid card-grid-3"></div>
-            </article>
-          </section>
-
-          <section class="module hidden" data-module="positioning">
-            <article class="paper-card">
+        <section id="tab-chapters" class="paper-card">
+          <div class="module-head">
+            <h2>正文创作区</h2>
+          </div>
+          <div class="writing-layout">
+            <aside class="writing-sidebar">
               <div class="module-head">
-                <h2>创作定位</h2>
-                <button id="edit-positioning-btn" class="btn btn-secondary">编辑</button>
+                <h3>章节目录</h3>
+                <button id="add-chapter-btn" class="btn btn-secondary">新增章节</button>
               </div>
-              <div id="positioning-view" class="reading-block"></div>
-              <form id="positioning-form" class="hidden"></form>
-            </article>
-          </section>
-
-          <section class="module hidden" data-module="background">
-            <article class="paper-card">
+              <div id="chapter-list" class="chapter-list"></div>
+            </aside>
+            <section class="writing-editor">
               <div class="module-head">
-                <h2>世界设定</h2>
-                <button id="edit-background-btn" class="btn btn-secondary">编辑</button>
+                <input id="chapter-title-input" type="text" placeholder="章节标题" />
+                <div class="inline-actions">
+                  <button id="save-chapter-btn" class="btn btn-primary">保存章节</button>
+                  <button id="delete-chapter-btn" class="btn btn-danger">删除章节</button>
+                </div>
               </div>
-              <div id="background-view" class="reading-block"></div>
-              <form id="background-form" class="hidden"></form>
-            </article>
-          </section>
+              <textarea id="chapter-content-input" class="notebook-textarea" rows="24" placeholder="在这里书写本章正文..." ></textarea>
+            </section>
+          </div>
+        </section>
 
-          <section class="module hidden" data-module="characters">
-            <article class="paper-card">
+        <section id="tab-notes" class="paper-card hidden">
+          <div class="module-head">
+            <h2>档案管理区</h2>
+          </div>
+          <div class="notes-mode-switch hidden" id="notes-mode-switch">
+            <button class="module-item active" data-notes-mode="list">档案目录</button>
+            <button class="module-item" data-notes-mode="editor">内容编辑</button>
+          </div>
+          <div class="notes-layout">
+            <aside class="notes-types" id="notes-list-side">
+              <button class="module-item active" data-note-type="character">人物</button>
+              <button class="module-item" data-note-type="foreshadow">伏笔</button>
+              <button class="module-item" data-note-type="plotline">情节线</button>
+              <button class="module-item" data-note-type="other">世界观</button>
+            </aside>
+            <section class="notes-list-pane" id="notes-list-pane">
               <div class="module-head">
-                <h2>人物档案</h2>
-                <button id="add-character-btn" class="btn btn-secondary">添加人物</button>
+                <h3 id="note-list-title">人物档案</h3>
+                <button id="add-note-btn" class="btn btn-secondary">新增档案</button>
               </div>
-              <div id="characters-list" class="card-grid card-grid-2"></div>
-            </article>
-          </section>
-
-          <section class="module hidden" data-module="plot">
-            <article class="paper-card">
+              <div id="note-list" class="chapter-list"></div>
+            </section>
+            <section class="notes-editor" id="notes-editor-pane">
               <div class="module-head">
-                <h2>故事脉络</h2>
-                <button id="add-plot-btn" class="btn btn-secondary">添加一条线索</button>
+                <input id="note-title-input" type="text" placeholder="档案标题" />
+                <div class="inline-actions">
+                  <select id="note-type-input" class="hidden">
+                    <option value="character">人物</option>
+                    <option value="foreshadow">伏笔</option>
+                    <option value="plotline">情节线</option>
+                    <option value="other">世界观</option>
+                  </select>
+                  <button id="save-note-btn" class="btn btn-primary">保存档案</button>
+                  <button id="delete-note-btn" class="btn btn-danger">删除档案</button>
+                </div>
               </div>
-              <div id="plot-list" class="card-grid card-grid-2"></div>
-            </article>
-          </section>
+              <textarea id="note-content-input" class="notebook-textarea" rows="24" placeholder="在这里自由记录你的创作档案..." ></textarea>
+            </section>
+          </div>
+        </section>
 
-          <section class="module hidden" data-module="chapters">
-            <article class="paper-card">
-              <div class="module-head">
-                <h2>章节手稿</h2>
-                <button id="add-chapter-btn" class="btn btn-secondary">添加章节手稿</button>
-              </div>
-              <div id="chapters-list" class="card-grid card-grid-1"></div>
-            </article>
-          </section>
-
-          <section class="module hidden" data-module="updates">
-            <article class="paper-card">
-              <h2>连载记录</h2>
-              <p class="module-note">连载推进已收敛到章节手稿内部。这里展示章节推进状态与衔接痕迹。</p>
-              <div id="updates-summary" class="card-grid card-grid-2"></div>
-            </article>
-          </section>
-
-          <section class="module hidden" data-module="feedback">
-            <article class="paper-card">
-              <div class="module-head">
-                <h2>读者回声</h2>
-                <button id="add-feedback-btn" class="btn btn-secondary">添加反馈</button>
-              </div>
-              <div id="feedback-list" class="card-grid card-grid-1"></div>
-            </article>
-          </section>
-
-          <p id="save-message" class="save-message"></p>
-          <p id="meta-info" class="meta-line"></p>
-        </main>
-      </div>
+        <p id="save-message" class="save-message"></p>
+        <p id="meta-info" class="meta-line"></p>
+      </main>
     </div>
 
-    <script src="./static/project-nav.js"></script>
     <script src="./static/app.js"></script>
   </body>
 </html>

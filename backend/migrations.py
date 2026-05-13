@@ -1,7 +1,10 @@
 from copy import deepcopy
 from typing import Any
 
-from models import LATEST_SCHEMA_VERSION
+try:
+    from .models import LATEST_SCHEMA_VERSION
+except ImportError:
+    from models import LATEST_SCHEMA_VERSION
 
 
 def _as_str(value: Any) -> str:
@@ -24,6 +27,20 @@ def _ensure_base_fields(project: dict[str, Any]) -> None:
     project["chapters"] = _as_list(project.get("chapters"))
     project["update_notes"] = _as_list(project.get("update_notes"))
     project["feedback_notes"] = _as_list(project.get("feedback_notes"))
+    project["notes"] = _as_list(project.get("notes"))
+
+
+def _note_from_legacy(item_type: str, item: dict[str, Any], idx: int, project_id: str) -> dict[str, Any]:
+    return {
+        "id": _as_str(item.get("id")) or f"note_{item_type}_{idx + 1}",
+        "project_id": project_id,
+        "type": item_type,
+        "title": _as_str(item.get("name") or item.get("title")),
+        "content": _as_str(item.get("content") or item.get("description") or item.get("notes")),
+        "order": idx,
+        "created_at": _as_str(item.get("created_at")),
+        "updated_at": _as_str(item.get("updated_at")),
+    }
 
 
 def _migrate_01_to_02(project: dict[str, Any]) -> None:
@@ -86,8 +103,52 @@ def _migrate_03_to_04(project: dict[str, Any]) -> None:
 
     if "update_notes" not in project:
         project["update_notes"] = []
+    if "notes" not in project:
+        project["notes"] = []
 
     project["schema_version"] = "0.4"
+
+
+def _migrate_simple_core(project: dict[str, Any]) -> None:
+    pid = _as_str(project.get("id"))
+
+    chapters = _as_list(project.get("chapters"))
+    for idx, ch in enumerate(chapters):
+        if not isinstance(ch, dict):
+            continue
+        ch.setdefault("project_id", pid)
+        ch.setdefault("title", "")
+        ch.setdefault("content", "")
+        ch.setdefault("order", idx)
+        ch.setdefault("created_at", _as_str(project.get("created_at")))
+        ch.setdefault("updated_at", _as_str(project.get("updated_at")))
+        if not ch.get("content"):
+            # legacy fallback: promote notes/summary text to content if empty
+            ch["content"] = _as_str(ch.get("notes") or ch.get("summary"))
+
+    notes = _as_list(project.get("notes"))
+    if not notes:
+        # convert old structured collections into free notes (non-destructive)
+        legacy_notes: list[dict[str, Any]] = []
+        for idx, c in enumerate(_as_list(project.get("characters"))):
+            if isinstance(c, dict):
+                legacy_notes.append(_note_from_legacy("character", c, idx, pid))
+        for idx, p in enumerate(_as_list(project.get("plot_threads"))):
+            if isinstance(p, dict):
+                legacy_notes.append(_note_from_legacy("plotline", p, idx, pid))
+        project["notes"] = legacy_notes
+    else:
+        for idx, n in enumerate(notes):
+            if not isinstance(n, dict):
+                continue
+            n.setdefault("id", f"note_other_{idx + 1}")
+            n.setdefault("project_id", pid)
+            n.setdefault("type", "other")
+            n.setdefault("title", "")
+            n.setdefault("content", "")
+            n.setdefault("order", idx)
+            n.setdefault("created_at", _as_str(project.get("created_at")))
+            n.setdefault("updated_at", _as_str(project.get("updated_at")))
 
 
 def migrate_project(project: dict[str, Any]) -> dict[str, Any]:
@@ -107,5 +168,6 @@ def migrate_project(project: dict[str, Any]) -> dict[str, Any]:
 
     # if newer/unknown, keep but still ensure required fields
     data["schema_version"] = data.get("schema_version") or LATEST_SCHEMA_VERSION
+    _migrate_simple_core(data)
     _ensure_base_fields(data)
     return data

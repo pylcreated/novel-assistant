@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+﻿from pydantic import BaseModel, Field
 
 
 LATEST_SCHEMA_VERSION = "0.4"
@@ -28,7 +28,13 @@ class PlotThread(BaseModel):
 
 class Chapter(BaseModel):
     id: str
+    project_id: str = ""
     title: str = ""
+    content: str = ""
+    order: int = 0
+    created_at: str = ""
+    updated_at: str = ""
+    # legacy-compatible fields
     summary: str = ""
     chapter_goal: str = ""
     previous_connection: str = ""
@@ -55,6 +61,17 @@ class FeedbackRecord(BaseModel):
     status: str = "pending"
 
 
+class Note(BaseModel):
+    id: str
+    project_id: str = ""
+    type: str = "other"
+    title: str = ""
+    content: str = ""
+    order: int = 0
+    created_at: str = ""
+    updated_at: str = ""
+
+
 class Project(BaseModel):
     schema_version: str = LATEST_SCHEMA_VERSION
     id: str
@@ -67,9 +84,10 @@ class Project(BaseModel):
     characters: list[Character] = Field(default_factory=list)
     plot_threads: list[PlotThread] = Field(default_factory=list)
     chapters: list[Chapter] = Field(default_factory=list)
+    notes: list[Note] = Field(default_factory=list)
     feedbacks: list[FeedbackRecord] = Field(default_factory=list)
     feedback: str = ""
-    # v0.4 compatibility fields requested by migration
+    # v0.4 compatibility fields
     plotlines: list[PlotThread] = Field(default_factory=list)
     update_notes: list[dict] = Field(default_factory=list)
     feedback_notes: list[dict] = Field(default_factory=list)
@@ -89,6 +107,7 @@ class UpdateProjectRequest(BaseModel):
     characters: list[Character] = Field(default_factory=list)
     plot_threads: list[PlotThread] = Field(default_factory=list)
     chapters: list[Chapter] = Field(default_factory=list)
+    notes: list[Note] = Field(default_factory=list)
     feedbacks: list[FeedbackRecord] = Field(default_factory=list)
     feedback: str = ""
     plotlines: list[PlotThread] = Field(default_factory=list)
@@ -102,3 +121,26 @@ class HealthResponse(BaseModel):
 
 class ProjectListResponse(BaseModel):
     projects: list[Project]
+
+
+class ChapterCreateRequest(BaseModel):
+    title: str = "新章节"
+
+
+class ChapterUpdateRequest(BaseModel):
+    title: str = ""
+    content: str = ""
+    order: int | None = None
+
+
+class NoteCreateRequest(BaseModel):
+    type: str = "other"
+    title: str = "新档案"
+    content: str = ""
+
+
+class NoteUpdateRequest(BaseModel):
+    type: str = "other"
+    title: str = ""
+    content: str = ""
+    order: int | None = None
