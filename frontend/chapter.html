@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>章节正文</title>
+    <link rel="stylesheet" href="./static/style.css">
+  </head>
+  <body>
+    <main class="workspace editor-shell">
+      <header class="editor-topbar">
+        <a id="back-link" class="back-link" href="#">返回</a>
+        <div class="editor-title-block">
+          <p id="editor-kicker" class="eyebrow">章节正文</p>
+          <h1 id="editor-title">章节</h1>
+        </div>
+        <div class="top-actions">
+          <button id="save-button" class="button primary" type="button">保存</button>
+          <div class="menu-wrap">
+            <button id="item-menu-button" class="dots-button" type="button" aria-label="章节菜单">⋮</button>
+            <div id="item-menu" class="menu hidden">
+              <button id="rename-item-button" type="button">重命名章节</button>
+              <button id="delete-item-button" type="button">删除章节</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="save-line">
+        <span id="save-status">正在载入</span>
+      </div>
+      <section class="paper-frame">
+        <textarea id="content-editor" class="big-editor" spellcheck="false"></textarea>
+      </section>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="./static/api.js"></script>
+    <script src="./static/ui.js"></script>
+    <script src="./static/editor.js"></script>
+    <script>
+      window.EditorPage.initChapter();
+    </script>
+  </body>
+</html>

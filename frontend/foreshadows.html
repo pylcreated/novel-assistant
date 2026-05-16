@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>伏笔线</title>
+    <link rel="stylesheet" href="./static/style.css">
+  </head>
+  <body>
+    <main class="page page-narrow">
+      <header class="topbar">
+        <a id="back-link" class="icon-button" href="#" aria-label="返回">‹</a>
+        <h1 id="collection-title" class="top-title">伏笔线</h1>
+        <button id="new-item-button" class="icon-button" type="button" aria-label="新建伏笔">+</button>
+      </header>
+      <div id="item-list" class="simple-list"></div>
+      <p id="empty-state" class="empty hidden">还没有伏笔。</p>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="./static/api.js"></script>
+    <script src="./static/ui.js"></script>
+    <script>
+      window.CollectionConfig = {
+        kind: "foreshadows",
+        idName: "foreshadow_id",
+        titleField: "title",
+        titleSuffix: "伏笔线",
+        itemLabel: "伏笔",
+        detailPage: "foreshadow_detail.html"
+      };
+    </script>
+    <script src="./static/collection.js"></script>
+  </body>
+</html>

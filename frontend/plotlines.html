@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>情节线</title>
+    <link rel="stylesheet" href="./static/style.css">
+  </head>
+  <body>
+    <main class="page page-narrow">
+      <header class="topbar">
+        <a id="back-link" class="icon-button" href="#" aria-label="返回">‹</a>
+        <h1 id="collection-title" class="top-title">情节线</h1>
+        <button id="new-item-button" class="icon-button" type="button" aria-label="新建情节线">+</button>
+      </header>
+      <div id="item-list" class="simple-list"></div>
+      <p id="empty-state" class="empty hidden">还没有情节线。</p>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="./static/api.js"></script>
+    <script src="./static/ui.js"></script>
+    <script>
+      window.CollectionConfig = {
+        kind: "plotlines",
+        idName: "plotline_id",
+        titleField: "title",
+        titleSuffix: "情节线",
+        itemLabel: "情节线",
+        detailPage: "plotline_detail.html"
+      };
+    </script>
+    <script src="./static/collection.js"></script>
+  </body>
+</html>

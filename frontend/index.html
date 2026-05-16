@@ -1,46 +1,50 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="zh-CN">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Novel Assistant - 项目首页</title>
-    <link rel="stylesheet" href="./static/style.css" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>尽情落笔吧！</title>
+    <link rel="stylesheet" href="./static/style.css">
   </head>
-  <body data-page="index">
-    <main class="index-shell">
-      <header class="index-header">
-        <div>
-          <h1>Novel Assistant</h1>
-          <p class="subtitle">小说创作工作台 · 项目入口</p>
-        </div>
-      </header>
+  <body>
+    <div class="app-shell home-shell">
+      <aside class="home-sidebar">
+      </aside>
 
-      <div class="index-layout">
-        <section class="index-panel">
-          <h2>创作新内容</h2>
-          <form id="create-project-form" class="index-form">
-            <label for="title">命名</label>
-            <input id="title" name="title" type="text" required maxlength="100" />
-
-            <label for="description">简介</label>
-            <textarea id="description" name="description" rows="5" placeholder="可选"></textarea>
-
-            <button type="submit" class="btn btn-primary">创建作品</button>
-          </form>
-          <p id="create-message" class="message"></p>
-        </section>
-
-        <section class="index-panel">
-          <div class="module-head">
-            <h2>作品书架</h2>
-            <button id="refresh-projects-btn" type="button" class="btn btn-secondary">更新书架</button>
+      <main class="workspace">
+        <header class="page-heading home-heading">
+          <div>
+            <p class="eyebrow">Novel Workspace</p>
+            <h2>尽情落笔吧！</h2>
           </div>
-          <div id="project-list" class="project-cards"></div>
-        </section>
-      </div>
-    </main>
+          <button id="new-project-button" class="home-add-button" type="button" aria-label="新建作品">+</button>
+        </header>
 
+        <section id="new-project-panel" class="soft-panel hidden" aria-label="新建作品">
+          <label class="field">
+            <span>作品名</span>
+            <input id="project-title" type="text" autocomplete="off" placeholder="例如：长夜来信">
+          </label>
+          <label class="field">
+            <span>简介</span>
+            <textarea id="project-description" rows="4" placeholder="一句话或一小段都可以"></textarea>
+          </label>
+          <div class="actions">
+            <button id="create-project-button" class="button primary" type="button">创建作品</button>
+            <button id="cancel-project-button" class="button ghost" type="button">取消</button>
+          </div>
+        </section>
+
+        <section>
+          <div id="project-list" class="project-grid"></div>
+          <p id="empty-state" class="empty hidden">还没有作品。先写下第一个名字吧。</p>
+        </section>
+      </main>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="./static/api.js"></script>
+    <script src="./static/ui.js"></script>
     <script src="./static/index.js"></script>
   </body>
 </html>
-

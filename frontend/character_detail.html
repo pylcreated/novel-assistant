@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>人物详情</title>
+    <link rel="stylesheet" href="./static/style.css">
+  </head>
+  <body>
+    <main class="workspace editor-shell">
+      <header class="editor-topbar">
+        <a id="back-link" class="back-link" href="#">返回列表</a>
+        <div class="editor-title-block">
+          <p id="editor-kicker" class="eyebrow">人物记录</p>
+          <h1 id="editor-title">人物</h1>
+        </div>
+        <div class="top-actions">
+          <button id="save-button" class="button primary" type="button">保存</button>
+          <button id="delete-item-button" class="button ghost" type="button">删除</button>
+        </div>
+      </header>
+
+      <section class="detail-editor-panel">
+        <label class="field">
+          <span>人物名称</span>
+          <input id="title-input" type="text" autocomplete="off">
+        </label>
+        <div class="save-line">
+          <span id="save-status">正在载入</span>
+        </div>
+        <textarea id="content-editor" class="big-editor" spellcheck="false"></textarea>
+      </section>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="./static/api.js"></script>
+    <script src="./static/ui.js"></script>
+    <script src="./static/editor.js"></script>
+    <script>
+      window.EditorPage.initEntry({
+        kind: "characters",
+        idName: "character_id",
+        titleField: "name",
+        titleSuffix: "人物记录",
+        itemLabel: "人物",
+        listPage: "project.html?tab=related"
+      });
+    </script>
+  </body>
+</html>

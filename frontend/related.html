@@ -3,36 +3,21 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>作品详情</title>
+    <title>作品相关</title>
     <link rel="stylesheet" href="./static/style.css">
   </head>
   <body>
     <main class="workspace page-wrap sketch-page">
       <header class="sketch-topbar">
-        <a class="sketch-back" href="./index.html" aria-label="返回">↶</a>
-        <h1 id="project-title">作品</h1>
-        <div class="menu-wrap">
-          <button id="add-button" class="sketch-plus" type="button" aria-label="新建">+</button>
-          <div id="add-menu" class="menu hidden">
-            <button id="new-volume-button" type="button">新建分卷</button>
-            <button id="new-chapter-button" type="button">新建章节</button>
-          </div>
+        <a id="back-link" class="sketch-back" href="#" aria-label="返回">↶</a>
+        <div class="related-title-block">
+          <p id="project-name" class="eyebrow">作品</p>
+          <h1 id="related-title">作品相关</h1>
         </div>
+        <span></span>
       </header>
 
-      <nav class="sketch-tabs" aria-label="作品内容">
-        <button class="sketch-tab active" type="button" data-tab="chapters">章节列表</button>
-        <button class="sketch-tab" type="button" data-tab="related">相关内容</button>
-      </nav>
-
-      <section id="chapters-tab" class="tab-panel">
-        <div id="volume-list" class="volume-list"></div>
-        <p id="empty-chapters" class="empty hidden">还没有分卷和章节。先新建一个分卷吧。</p>
-      </section>
-
-      <section id="related-tab" class="tab-panel hidden">
-        <section id="collection-list" class="collection-list" aria-label="作品相关集合"></section>
-      </section>
+      <section id="collection-list" class="collection-list" aria-label="作品相关集合"></section>
     </main>
 
     <div id="create-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="create-modal-title">
@@ -53,6 +38,6 @@
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
     <script src="./static/api.js"></script>
     <script src="./static/ui.js"></script>
-    <script src="./static/project.js"></script>
+    <script src="./static/related.js"></script>
   </body>
 </html>

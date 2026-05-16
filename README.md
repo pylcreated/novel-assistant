@@ -1,77 +1,117 @@
-﻿# Novel Assistant
+# 极简小说创作工作台
 
-一个面向长篇小说创作的本地辅助系统。  
-它不负责“一键生成正文”，而是提供“正文写作 + 创作档案”两个核心能力。
-
-## 项目定位
-Novel Assistant 以“极简可用”为核心：
-- 章节正文可以直接写、直接保存
-- 人物/伏笔/情节线通过自由文本档案维护
-
-## 核心功能
-- 创建、读取、更新、删除小说项目
-- 章节正文工作台（新增、切换、编辑、删除、保存）
-- 创作档案工作台（人物/伏笔/情节线/其他）
-- `schema_version` 版本管理与读取时迁移
-- 保存前备份（本地 JSON）
+这是一个本地运行的小说创作工作台。它不做 AI 生成，不做自动分析，也不预设复杂模板，只负责管理、存储、跳转、展开和收纳。
 
 ## 技术栈
-- 后端：Python + FastAPI
-- 前端：原生 HTML / CSS / JavaScript
-- 存储：本地 JSON（无数据库）
 
-## 本地运行方式
-### 1) 启动后端
-```bash
-cd D:\MyProjects\novel-assistant\backend
-py -3 -m pip install -r requirements.txt
-py -3 -m uvicorn main:app --reload --port 8000
+- 前端：原生 HTML + CSS + JavaScript
+- 后端：Python + FastAPI
+- 存储：本地 JSON 文件
+- 数据库：无
+
+## 启动方式
+
+建议先进入项目目录：
+
+```powershell
+cd D:\MyProjects\novel-assistant
 ```
 
-### 2) 打开前端
-直接打开：
-- `D:\MyProjects\novel-assistant\frontend\index.html`
+安装依赖：
 
-### 3) 健康检查
-- [http://127.0.0.1:8000/api/health](http://127.0.0.1:8000/api/health)
+```powershell
+pip install -r requirements.txt
+```
+
+如果你的 Windows 上 `python` 被 Microsoft Store 占位程序拦截，可以使用本机已检测到的解释器路径：
+
+```powershell
+& "C:\Users\31601\AppData\Local\Python\bin\python.exe" -m pip install -r requirements.txt
+```
+
+启动服务：
+
+```powershell
+uvicorn backend.main:app --reload
+```
+
+或者：
+
+```powershell
+& "C:\Users\31601\AppData\Local\Python\bin\python.exe" -m uvicorn backend.main:app --reload
+```
+
+打开浏览器访问：
+
+```text
+http://127.0.0.1:8000
+```
+
+## 使用方式
+
+1. 首页点击“新建作品”，填写作品名和简介。
+2. 点击作品卡片进入作品主页。
+3. 在“章节列表”中点击右上角“+”，先新建分卷，再新建章节。
+4. 点击章节进入正文页，在大文本区自由写作。
+5. 正文会显示“草稿未保存 / 正在保存 / 已保存 / 保存失败”等状态，并使用 `localStorage` 保留本地草稿。
+6. 在作品主页点击“作品相关”，进入人物管理。
+7. 人物详情只有人物名和自由文本内容，不预设字段。
+
+## 数据目录
+
+数据保存在：
+
+```text
+data/projects/{project_id}/
+```
+
+每个作品包含：
+
+```text
+project.json
+volumes.json
+chapters.json
+characters.json
+foreshadows.json
+plotlines.json
+```
+
+## API 模块
+
+主要接口前缀：
+
+- `/api/projects`
+- `/api/projects/{project_id}/volumes`
+- `/api/projects/{project_id}/chapters`
+- `/api/projects/{project_id}/characters`
+- `/api/projects/{project_id}/foreshadows`
+- `/api/projects/{project_id}/plotlines`
+
+服务启动后也可以访问 FastAPI 文档：
+
+```text
+http://127.0.0.1:8000/docs
+```
 
 ## 项目结构
+
 ```text
-novel-assistant/
-├─ backend/                 # FastAPI 接口、模型、迁移、存储
-├─ frontend/                # 原生前端页面与脚本
-├─ data/
-│  ├─ projects/             # 本地项目数据（git忽略，仅保留 .gitkeep）
-│  └─ backups/              # 本地备份数据（git忽略，仅保留 .gitkeep）
-├─ docs/                    # 产品、架构、数据模型、测试与迭代文档
-├─ prompts/                 # 历史任务提示词
-├─ .gitignore
-└─ README.md
+backend/
+  main.py
+  storage.py
+  routers/
+frontend/
+  index.html
+  project.html
+  chapter.html
+  related.html
+  characters.html
+  character_detail.html
+  foreshadows.html
+  foreshadow_detail.html
+  plotlines.html
+  plotline_detail.html
+  static/
+data/
+  projects/
 ```
-
-## 项目截图（占位）
-> 可在发布前替换为真实截图并更新路径。
-
-- 首页（项目列表）  
-  `docs/screenshots/index-placeholder.png`
-- 工作台（项目详情）  
-  `docs/screenshots/project-placeholder.png`
-- 结构化编辑（人物/情节/章节）  
-  `docs/screenshots/editor-placeholder.png`
-
-## 文档入口
-- 文档索引：[docs/README_DOCS.md](docs/README_DOCS.md)
-- 产品说明：[docs/product.md](docs/product.md)
-- 架构说明：[docs/architecture.md](docs/architecture.md)
-- 数据模型：[docs/data_model.md](docs/data_model.md)
-- 迁移说明：[docs/migration_notes.md](docs/migration_notes.md)
-- 回归测试：[docs/regression_test_v0.4.md](docs/regression_test_v0.4.md)
-- 更新记录：[docs/changelog.md](docs/changelog.md)
-- 路线图：[docs/roadmap.md](docs/roadmap.md)
-
-## 后续计划
-见：[docs/roadmap.md](docs/roadmap.md)
-
-## 说明
-- 本仓库默认不提交真实项目数据与本地备份。
-- `data/projects/` 与 `data/backups/` 仅保留目录结构（`.gitkeep`）。

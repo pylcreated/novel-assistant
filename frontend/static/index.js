@@ -1,167 +1,96 @@
-﻿const API_BASE_CANDIDATES = [
-  "http://127.0.0.1:8012/api",
-  "http://127.0.0.1:8010/api",
-  "http://127.0.0.1:8000/api",
-];
-let activeApiBase = API_BASE_CANDIDATES[0];
-
-function esc(v) {
-  return String(v ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-}
-
-function formatDate(v) {
-  if (!v) return "";
-  const d = new Date(v);
-  return Number.isNaN(d.getTime()) ? String(v) : d.toLocaleString();
-}
-
-function withBase(url, base) {
-  return String(url || "").replace(/^http:\/\/127\.0\.0\.1:\d+\/api/, base);
-}
-
-async function doFetchJson(url, options = {}) {
-  const res = await fetch(url, options);
-  if (!res.ok) {
-    throw new Error("请求失败");
-  }
-  return res.json();
-}
-
-async function requestJson(url, options = {}) {
-  for (const base of API_BASE_CANDIDATES) {
-    try {
-      const data = await doFetchJson(withBase(url, base), options);
-      activeApiBase = base;
-      return data;
-    } catch {
-      // try next endpoint
-    }
-  }
-  throw new Error("请求失败");
-}
-
-async function setupIndexPage() {
+(async function () {
   const list = document.getElementById("project-list");
-  const form = document.getElementById("create-project-form");
-  const msg = document.getElementById("create-message");
-  const refreshBtn = document.getElementById("refresh-projects-btn");
-  const titleInput = document.getElementById("title");
-  const descInput = document.getElementById("description");
-  if (!list || !form || !msg || !titleInput || !descInput) return;
+  const emptyState = document.getElementById("empty-state");
+  const panel = document.getElementById("new-project-panel");
+  const titleInput = document.getElementById("project-title");
+  const descriptionInput = document.getElementById("project-description");
+  const newButton = document.getElementById("new-project-button");
+  const createButton = document.getElementById("create-project-button");
+  const cancelButton = document.getElementById("cancel-project-button");
 
-  const params = new URLSearchParams(window.location.search);
-  if (params.get("error")) {
-    msg.textContent = "项目加载失败";
+  function formatDate(value) {
+    if (!value) {
+      return "未记录";
+    }
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return "未记录";
+    }
+    return date.toLocaleDateString("zh-CN", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    });
   }
-  if (!titleInput.value && params.get("title")) titleInput.value = params.get("title");
-  if (!descInput.value && params.get("description")) descInput.value = params.get("description");
 
-  async function renderList() {
+  function render(projects) {
+    list.innerHTML = "";
+    UI.setHidden(emptyState, projects.length > 0);
+
+    projects.forEach((project) => {
+      const card = document.createElement("article");
+      card.className = "project-card";
+      card.innerHTML = `
+        <a class="project-cover" href="${Api.buildUrl("project.html", { project_id: project.id })}" aria-label="进入作品">
+          <span>${UI.escapeHtml((project.title || "未命名").slice(0, 1))}</span>
+        </a>
+        <div class="project-card-body">
+          <h3>${UI.escapeHtml(project.title)}</h3>
+          <p>${UI.escapeHtml(project.description || "没有简介。")}</p>
+          <dl class="project-meta">
+            <div><dt>创建</dt><dd>${formatDate(project.created_at)}</dd></div>
+            <div><dt>更新</dt><dd>${formatDate(project.updated_at)}</dd></div>
+          </dl>
+          <a class="button soft enter-button" href="${Api.buildUrl("project.html", { project_id: project.id })}">进入作品</a>
+        </div>
+      `;
+      list.appendChild(card);
+    });
+  }
+
+  async function loadProjects() {
     try {
-      const data = await requestJson(`${activeApiBase}/projects`);
-      if (!data.projects?.length) {
-        list.innerHTML = '<p class="module-note">还没有项目，先创建一个吧。</p>';
-        return;
-      }
-      list.innerHTML = data.projects
-        .map(
-          (p) => `
-            <article class="project-card">
-              <h3>${esc(p.title || "未命名作品")}</h3>
-              <div class="story-text">${esc(p.description || "暂无简介")}</div>
-              <div class="project-meta">更新时间：${esc(formatDate(p.updated_at))}</div>
-              <div class="project-actions">
-                <a class="btn btn-secondary" href="./project.html?id=${encodeURIComponent(p.id)}">继续创作</a>
-                <button type="button" class="btn btn-danger" data-action="delete-project" data-id="${esc(p.id)}">删除作品</button>
-              </div>
-            </article>
-          `,
-        )
-        .join("");
-    } catch {
-      list.innerHTML = '<p class="module-note">项目加载失败</p>';
-      msg.textContent = "项目加载失败";
+      const projects = await Api.get("/api/projects");
+      render(projects);
+    } catch (error) {
+      UI.notify(`作品列表载入失败：${error.message}`, "error");
     }
   }
 
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    msg.textContent = "";
+  newButton.addEventListener("click", () => {
+    panel.classList.remove("hidden");
+    titleInput.focus();
+  });
 
+  cancelButton.addEventListener("click", () => {
+    panel.classList.add("hidden");
+    titleInput.value = "";
+    descriptionInput.value = "";
+  });
+
+  createButton.addEventListener("click", async () => {
     const title = titleInput.value.trim();
-    const description = descInput.value.trim();
     if (!title) {
-      msg.textContent = "请先填写命名";
+      UI.notify("请先写作品名。", "error");
       titleInput.focus();
       return;
     }
 
+    createButton.disabled = true;
+    UI.notify("正在新建作品");
     try {
-      const created = await requestJson(`${activeApiBase}/projects`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, description }),
+      const project = await Api.post("/api/projects", {
+        title,
+        description: descriptionInput.value
       });
-      msg.textContent = "创建成功，正在继续创作。";
-      await renderList();
-      if (created?.id) {
-        window.location.href = `./project.html?id=${encodeURIComponent(created.id)}`;
-      }
-    } catch {
-      msg.textContent = "创建失败";
+      UI.notify("新建成功");
+      window.location.href = Api.buildUrl("project.html", { project_id: project.id });
+    } catch (error) {
+      UI.notify(`新建失败：${error.message}`, "error");
+    } finally {
+      createButton.disabled = false;
     }
   });
 
-  list.addEventListener("click", async (e) => {
-    const btn = e.target.closest('button[data-action="delete-project"]');
-    if (!btn) return;
-    const projectId = btn.dataset.id;
-    if (!projectId) return;
-    if (!window.confirm("确认删除这个项目吗？删除后无法恢复。")) return;
-
-    const pid = encodeURIComponent(projectId);
-    const attempts = [
-      { url: `${activeApiBase}/projects/${pid}`, options: { method: "DELETE" } },
-      { url: `${activeApiBase}/projects/${pid}/`, options: { method: "DELETE" } },
-      { url: `${activeApiBase}/projects/${pid}/delete`, options: { method: "POST" } },
-      { url: `${activeApiBase}/projects/${pid}/remove`, options: { method: "POST" } },
-    ];
-
-    let ok = false;
-    for (const req of attempts) {
-      try {
-        await requestJson(req.url, req.options);
-        ok = true;
-        break;
-      } catch {
-        // continue trying fallback endpoints
-      }
-    }
-
-    if (!ok) {
-      msg.textContent = "删除失败";
-      return;
-    }
-
-    msg.textContent = "项目已删除。";
-    await renderList();
-  });
-
-  refreshBtn?.addEventListener("click", async () => {
-    msg.textContent = "";
-    await renderList();
-  });
-
-  await renderList();
-}
-
-setupIndexPage().catch(() => {
-  const msg = document.getElementById("create-message");
-  if (msg) msg.textContent = "页面加载失败";
-});
-
+  await loadProjects();
+})();
